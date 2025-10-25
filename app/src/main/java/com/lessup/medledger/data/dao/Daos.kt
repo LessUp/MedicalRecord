@@ -25,7 +25,7 @@ interface VisitDao {
 @Dao
 interface DocumentDao {
     @Query("SELECT * FROM documents WHERE visitId = :visitId ORDER BY createdAt DESC")
-    suspend fun getByVisit(visitId: Long): List<Document>
+    fun getByVisit(visitId: Long): Flow<List<Document>>
 
     @Insert
     suspend fun insert(entity: Document): Long

@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,27 +29,37 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun HomeScreen(
     onEdit: (Long?) -> Unit,
+    onScan: () -> Unit,
     vm: HomeViewModel = hiltViewModel()
 ) {
     val visits by vm.visits.collectAsStateWithLifecycle()
 
-    if (visits.isEmpty()) {
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("暂无就诊记录，点击右下角 + 新增")
+    Column(Modifier.fillMaxSize()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Button(onClick = onScan) { Text("去扫描") }
+            Button(onClick = { onEdit(null) }) { Text("新增就诊") }
         }
-        return
-    }
 
-    LazyColumn(Modifier.fillMaxSize()) {
-        items(visits, key = { it.id }) { v ->
-            VisitRow(
-                visit = v,
-                onClick = { onEdit(v.id) },
-                onDelete = { vm.delete(v) }
-            )
-            Divider()
+        if (visits.isEmpty()) {
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("暂无就诊记录，点击上方新增或去扫描")
+            }
+        } else {
+            LazyColumn(Modifier.fillMaxSize()) {
+                items(visits, key = { it.id }) { v ->
+                    VisitRow(
+                        visit = v,
+                        onClick = { onEdit(v.id) },
+                        onDelete = { vm.delete(v) }
+                    )
+                    Divider()
+                }
+                item { Spacer(Modifier.height(32.dp)) }
+            }
         }
-        item { Spacer(Modifier.height(32.dp)) }
     }
 }
 

@@ -24,13 +24,34 @@ val bottomDestinations = listOf(Dest.Home, Dest.Chronic, Dest.Settings)
 @Composable
 fun AppNavHost(navController: NavHostController) {
     NavHost(navController = navController, startDestination = Dest.Home.route) {
-        composable(Dest.Home.route) { HomeScreen(onEdit = { id -> if (id == null) navController.navigate("visit/edit") else navController.navigate("visit/edit/$id") }) }
+        composable(Dest.Home.route) {
+            HomeScreen(
+                onEdit = { id -> if (id == null) navController.navigate("visit/edit") else navController.navigate("visit/detail/$id") },
+                onScan = { navController.navigate("scan") }
+            )
+        }
         composable(Dest.Chronic.route) { ChronicScreen() }
         composable(Dest.Settings.route) { SettingsScreen() }
         composable("visit/edit") { com.lessup.medledger.ui.visit.VisitEditScreen(visitId = null, onClose = { navController.popBackStack() }) }
         composable("visit/edit/{id}") { backStackEntry ->
             val id = backStackEntry.arguments?.getString("id")?.toLongOrNull()
             com.lessup.medledger.ui.visit.VisitEditScreen(visitId = id, onClose = { navController.popBackStack() })
+        }
+        composable("visit/detail/{id}") { backStackEntry ->
+            val id = backStackEntry.arguments?.getString("id")?.toLongOrNull()
+            if (id != null) {
+                com.lessup.medledger.ui.visit.VisitDetailScreen(
+                    visitId = id,
+                    onClose = { navController.popBackStack() },
+                    onEdit = { navController.navigate("visit/edit/$id") },
+                    onScan = { navController.navigate("scan/$id") }
+                )
+            }
+        }
+        composable("scan") { com.lessup.medledger.ui.scan.ScanScreen(visitId = null, onClose = { navController.popBackStack() }) }
+        composable("scan/{visitId}") { backStackEntry ->
+            val vid = backStackEntry.arguments?.getString("visitId")?.toLongOrNull()
+            com.lessup.medledger.ui.scan.ScanScreen(visitId = vid, onClose = { navController.popBackStack() })
         }
     }
 }
