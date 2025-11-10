@@ -13,11 +13,18 @@ class ReminderWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters
 ) : CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
+        val title = inputData.getString(KEY_TITLE) ?: "复查提醒"
+        val content = inputData.getString(KEY_CONTENT) ?: "请关注您的复查计划"
         NotificationHelper.showReminder(
             applicationContext,
-            title = "复查提醒",
-            content = "这是一次测试提醒通知"
+            title = title,
+            content = content
         )
         return Result.success()
+    }
+
+    companion object {
+        const val KEY_TITLE = "reminder_title"
+        const val KEY_CONTENT = "reminder_content"
     }
 }
