@@ -2,9 +2,10 @@ plugins {
     id("com.android.application") version "8.5.2"
     id("org.jetbrains.kotlin.android") version "1.9.24"
     id("com.google.devtools.ksp") version "1.9.24-1.0.20"
-    id("org.jetbrains.kotlin.kapt")
     id("com.google.dagger.hilt.android") version "2.51.1"
 }
+
+apply(plugin = "org.jetbrains.kotlin.kapt")
 
 android {
     namespace = "com.lessup.medledger"

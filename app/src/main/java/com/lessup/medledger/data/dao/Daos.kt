@@ -72,6 +72,9 @@ interface ChronicConditionDao {
     @Query("SELECT * FROM chronic_conditions ORDER BY id DESC")
     suspend fun getAll(): List<ChronicCondition>
 
+    @Query("SELECT * FROM chronic_conditions ORDER BY id DESC")
+    fun observeAll(): Flow<List<ChronicCondition>>
+
     @Insert
     suspend fun insert(entity: ChronicCondition): Long
 
@@ -86,6 +89,12 @@ interface ChronicConditionDao {
 interface CheckupPlanDao {
     @Query("SELECT * FROM checkup_plans WHERE conditionId = :conditionId")
     suspend fun getByCondition(conditionId: Long): List<CheckupPlan>
+
+    @Query("SELECT * FROM checkup_plans")
+    suspend fun getAll(): List<CheckupPlan>
+
+    @Query("SELECT * FROM checkup_plans")
+    fun observeAll(): Flow<List<CheckupPlan>>
 
     @Insert
     suspend fun insert(entity: CheckupPlan): Long
