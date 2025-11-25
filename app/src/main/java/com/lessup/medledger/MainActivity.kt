@@ -47,6 +47,7 @@ class MainActivity : ComponentActivity() {
                 val isMainScreen = currentRoute in listOf(
                     Dest.Home.route,
                     Dest.Chronic.route,
+                    Dest.Profile.route,
                     Dest.Settings.route
                 )
                 val showFab = currentRoute == Dest.Home.route

@@ -1,0 +1,75 @@
+-- FamilyMember (家庭成员)
+CREATE TABLE FamilyMember (
+    localId INTEGER PRIMARY KEY AUTOINCREMENT,
+    remoteId TEXT,
+    userId TEXT NOT NULL,
+    name TEXT NOT NULL,
+    relationship TEXT NOT NULL,
+    gender TEXT,
+    birthDate INTEGER,
+    avatar TEXT,
+    medicalCardNo TEXT,
+    isDefault INTEGER NOT NULL DEFAULT 0,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    syncStatus TEXT NOT NULL DEFAULT 'PENDING',
+    version INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE INDEX member_user ON FamilyMember(userId);
+CREATE INDEX member_sync ON FamilyMember(syncStatus);
+
+-- Queries
+selectAll:
+SELECT * FROM FamilyMember WHERE deletedAt IS NULL ORDER BY isDefault DESC, localId ASC;
+
+selectByUser:
+SELECT * FROM FamilyMember WHERE userId = ? AND deletedAt IS NULL ORDER BY isDefault DESC, localId ASC;
+
+selectById:
+SELECT * FROM FamilyMember WHERE localId = ?;
+
+selectByRemoteId:
+SELECT * FROM FamilyMember WHERE remoteId = ?;
+
+selectDefault:
+SELECT * FROM FamilyMember WHERE userId = ? AND isDefault = 1 AND deletedAt IS NULL LIMIT 1;
+
+selectPending:
+SELECT * FROM FamilyMember WHERE syncStatus = 'PENDING' OR syncStatus = 'CONFLICT';
+
+insert:
+INSERT INTO FamilyMember(remoteId, userId, name, relationship, gender, birthDate, avatar, medicalCardNo, isDefault, createdAt, updatedAt, syncStatus, version)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+getLastInsertId:
+SELECT last_insert_rowid();
+
+update:
+UPDATE FamilyMember SET
+    name = ?,
+    relationship = ?,
+    gender = ?,
+    birthDate = ?,
+    avatar = ?,
+    medicalCardNo = ?,
+    updatedAt = ?,
+    syncStatus = 'PENDING',
+    version = version + 1
+WHERE localId = ?;
+
+setDefault:
+UPDATE FamilyMember SET isDefault = 0 WHERE userId = ?;
+
+makeDefault:
+UPDATE FamilyMember SET isDefault = 1, updatedAt = ? WHERE localId = ?;
+
+updateSyncStatus:
+UPDATE FamilyMember SET syncStatus = ?, remoteId = ?, version = ? WHERE localId = ?;
+
+softDelete:
+UPDATE FamilyMember SET deletedAt = ?, updatedAt = ?, syncStatus = 'PENDING' WHERE localId = ?;
+
+hardDelete:
+DELETE FROM FamilyMember WHERE localId = ?;

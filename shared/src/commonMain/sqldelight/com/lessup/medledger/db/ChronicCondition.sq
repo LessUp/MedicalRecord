@@ -1,0 +1,63 @@
+-- ChronicCondition (慢病档案)
+CREATE TABLE ChronicCondition (
+    localId INTEGER PRIMARY KEY AUTOINCREMENT,
+    remoteId TEXT,
+    userId TEXT,
+    memberId TEXT,
+    name TEXT NOT NULL,
+    diagnosedAt INTEGER,
+    department TEXT,
+    note TEXT,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    syncStatus TEXT NOT NULL DEFAULT 'PENDING',
+    version INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE INDEX chronic_user ON ChronicCondition(userId);
+CREATE INDEX chronic_sync ON ChronicCondition(syncStatus);
+
+-- Queries
+selectAll:
+SELECT * FROM ChronicCondition WHERE deletedAt IS NULL ORDER BY localId DESC;
+
+selectByUser:
+SELECT * FROM ChronicCondition WHERE userId = ? AND deletedAt IS NULL ORDER BY localId DESC;
+
+selectById:
+SELECT * FROM ChronicCondition WHERE localId = ?;
+
+selectByRemoteId:
+SELECT * FROM ChronicCondition WHERE remoteId = ?;
+
+selectPending:
+SELECT * FROM ChronicCondition WHERE syncStatus = 'PENDING' OR syncStatus = 'CONFLICT';
+
+insert:
+INSERT INTO ChronicCondition(remoteId, userId, memberId, name, diagnosedAt, department, note, createdAt, updatedAt, syncStatus, version)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+getLastInsertId:
+SELECT last_insert_rowid();
+
+update:
+UPDATE ChronicCondition SET
+    memberId = ?,
+    name = ?,
+    diagnosedAt = ?,
+    department = ?,
+    note = ?,
+    updatedAt = ?,
+    syncStatus = 'PENDING',
+    version = version + 1
+WHERE localId = ?;
+
+updateSyncStatus:
+UPDATE ChronicCondition SET syncStatus = ?, remoteId = ?, version = ? WHERE localId = ?;
+
+softDelete:
+UPDATE ChronicCondition SET deletedAt = ?, updatedAt = ?, syncStatus = 'PENDING' WHERE localId = ?;
+
+hardDelete:
+DELETE FROM ChronicCondition WHERE localId = ?;

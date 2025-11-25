@@ -1,0 +1,76 @@
+-- Document (文档/扫描件)
+CREATE TABLE Document (
+    localId INTEGER PRIMARY KEY AUTOINCREMENT,
+    remoteId TEXT,
+    userId TEXT,
+    visitId INTEGER,
+    title TEXT NOT NULL,
+    type TEXT NOT NULL,
+    pages INTEGER NOT NULL DEFAULT 1,
+    localPath TEXT,
+    remotePath TEXT,
+    thumbPath TEXT,
+    tags TEXT,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    syncStatus TEXT NOT NULL DEFAULT 'PENDING',
+    version INTEGER NOT NULL DEFAULT 1,
+    FOREIGN KEY (visitId) REFERENCES Visit(localId) ON DELETE SET NULL
+);
+
+CREATE INDEX doc_visit ON Document(visitId);
+CREATE INDEX doc_user ON Document(userId);
+CREATE INDEX doc_sync ON Document(syncStatus);
+
+-- Queries
+selectAll:
+SELECT * FROM Document WHERE deletedAt IS NULL ORDER BY createdAt DESC;
+
+selectByVisit:
+SELECT * FROM Document WHERE visitId = ? AND deletedAt IS NULL ORDER BY createdAt DESC;
+
+selectById:
+SELECT * FROM Document WHERE localId = ?;
+
+selectByRemoteId:
+SELECT * FROM Document WHERE remoteId = ?;
+
+selectPending:
+SELECT * FROM Document WHERE syncStatus = 'PENDING' OR syncStatus = 'CONFLICT';
+
+selectNeedUpload:
+SELECT * FROM Document WHERE localPath IS NOT NULL AND remotePath IS NULL AND deletedAt IS NULL;
+
+insert:
+INSERT INTO Document(remoteId, userId, visitId, title, type, pages, localPath, remotePath, thumbPath, tags, createdAt, updatedAt, syncStatus, version)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+getLastInsertId:
+SELECT last_insert_rowid();
+
+update:
+UPDATE Document SET
+    title = ?,
+    type = ?,
+    pages = ?,
+    localPath = ?,
+    remotePath = ?,
+    thumbPath = ?,
+    tags = ?,
+    updatedAt = ?,
+    syncStatus = 'PENDING',
+    version = version + 1
+WHERE localId = ?;
+
+updateRemotePath:
+UPDATE Document SET remotePath = ?, updatedAt = ?, syncStatus = 'SYNCED' WHERE localId = ?;
+
+updateSyncStatus:
+UPDATE Document SET syncStatus = ?, remoteId = ?, version = ? WHERE localId = ?;
+
+softDelete:
+UPDATE Document SET deletedAt = ?, updatedAt = ?, syncStatus = 'PENDING' WHERE localId = ?;
+
+hardDelete:
+DELETE FROM Document WHERE localId = ?;

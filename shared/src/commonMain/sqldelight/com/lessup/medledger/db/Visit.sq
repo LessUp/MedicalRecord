@@ -1,0 +1,92 @@
+-- Visit (就诊记录)
+CREATE TABLE Visit (
+    localId INTEGER PRIMARY KEY AUTOINCREMENT,
+    remoteId TEXT,
+    userId TEXT,
+    memberId TEXT,
+    date INTEGER NOT NULL,
+    hospital TEXT NOT NULL,
+    department TEXT,
+    doctor TEXT,
+    items TEXT,
+    cost REAL,
+    note TEXT,
+    createdAt INTEGER NOT NULL,
+    updatedAt INTEGER NOT NULL,
+    deletedAt INTEGER,
+    syncStatus TEXT NOT NULL DEFAULT 'PENDING',
+    version INTEGER NOT NULL DEFAULT 1
+);
+
+CREATE INDEX visit_date ON Visit(date);
+CREATE INDEX visit_user ON Visit(userId);
+CREATE INDEX visit_sync ON Visit(syncStatus);
+
+-- Queries
+selectAll:
+SELECT * FROM Visit WHERE deletedAt IS NULL ORDER BY date DESC;
+
+selectByUser:
+SELECT * FROM Visit WHERE userId = ? AND deletedAt IS NULL ORDER BY date DESC;
+
+selectById:
+SELECT * FROM Visit WHERE localId = ?;
+
+selectByRemoteId:
+SELECT * FROM Visit WHERE remoteId = ?;
+
+selectPending:
+SELECT * FROM Visit WHERE syncStatus = 'PENDING' OR syncStatus = 'CONFLICT';
+
+selectByDateRange:
+SELECT * FROM Visit 
+WHERE date >= ? AND date <= ? AND deletedAt IS NULL 
+ORDER BY date DESC;
+
+selectByMonth:
+SELECT * FROM Visit
+WHERE date >= ? AND date < ? AND deletedAt IS NULL
+ORDER BY date DESC;
+
+countByUser:
+SELECT COUNT(*) FROM Visit WHERE userId = ? AND deletedAt IS NULL;
+
+countByMonth:
+SELECT COUNT(*) FROM Visit 
+WHERE date >= ? AND date < ? AND deletedAt IS NULL;
+
+sumCostByMonth:
+SELECT SUM(cost) FROM Visit 
+WHERE date >= ? AND date < ? AND deletedAt IS NULL;
+
+insert:
+INSERT INTO Visit(remoteId, userId, memberId, date, hospital, department, doctor, 
+    items, cost, note, createdAt, updatedAt, syncStatus, version)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+getLastInsertId:
+SELECT last_insert_rowid();
+
+update:
+UPDATE Visit SET
+    memberId = ?,
+    date = ?,
+    hospital = ?,
+    department = ?,
+    doctor = ?,
+    items = ?,
+    cost = ?,
+    note = ?,
+    updatedAt = ?,
+    syncStatus = 'PENDING',
+    version = version + 1
+WHERE localId = ?;
+
+updateSyncStatus:
+UPDATE Visit SET syncStatus = ?, remoteId = ?, version = ? WHERE localId = ?;
+
+softDelete:
+UPDATE Visit SET deletedAt = ?, updatedAt = ?, syncStatus = 'PENDING' WHERE localId = ?;
+
+hardDelete:
+DELETE FROM Visit WHERE localId = ?;

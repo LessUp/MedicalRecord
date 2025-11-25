@@ -1,0 +1,36 @@
+-- User (用户)
+CREATE TABLE User (
+    id TEXT PRIMARY KEY,
+    phone TEXT,
+    email TEXT,
+    nickname TEXT NOT NULL,
+    avatar TEXT,
+    wechatUnionId TEXT,
+    appleId TEXT,
+    createdAt INTEGER NOT NULL,
+    lastLoginAt INTEGER,
+    lastSyncAt INTEGER
+);
+
+-- Queries
+selectCurrent:
+SELECT * FROM User LIMIT 1;
+
+selectById:
+SELECT * FROM User WHERE id = ?;
+
+insert:
+INSERT OR REPLACE INTO User(id, phone, email, nickname, avatar, wechatUnionId, appleId, createdAt, lastLoginAt, lastSyncAt)
+VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+updateProfile:
+UPDATE User SET nickname = ?, avatar = ? WHERE id = ?;
+
+updateLastSync:
+UPDATE User SET lastSyncAt = ? WHERE id = ?;
+
+updateLastLogin:
+UPDATE User SET lastLoginAt = ? WHERE id = ?;
+
+deleteAll:
+DELETE FROM User;
