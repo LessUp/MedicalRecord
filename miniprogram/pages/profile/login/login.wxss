@@ -1,0 +1,69 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 80rpx 40rpx;
+  min-height: 100vh;
+  background: linear-gradient(180deg, rgba(46,125,74,0.1) 0%, #fff 50%);
+}
+
+.logo-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 100rpx;
+}
+
+.logo {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 32rpx;
+}
+
+.app-name {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #2E7D4A;
+  margin-top: 24rpx;
+}
+
+.slogan {
+  font-size: 28rpx;
+  color: #666;
+  margin-top: 8rpx;
+}
+
+.btn-area {
+  width: 100%;
+  margin-top: 120rpx;
+}
+
+.wechat-btn {
+  background-color: #07C160;
+  color: #fff;
+  border-radius: 12rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  font-size: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+
+.skip-btn {
+  background-color: transparent;
+  color: #999;
+  font-size: 28rpx;
+  margin-top: 32rpx;
+}
+
+.footer {
+  position: absolute;
+  bottom: 60rpx;
+}
+
+.footer text {
+  font-size: 24rpx;
+  color: #999;
+}

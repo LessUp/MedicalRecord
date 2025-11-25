@@ -106,5 +106,12 @@ fun AppNavHost(navController: NavHostController) {
                 onVisitClick = { id -> navController.navigate("visit/detail/$id") }
             )
         }
+        
+        // 费用统计
+        composable("stats") {
+            com.lessup.medledger.ui.stats.StatsScreen(
+                onBack = { navController.popBackStack() }
+            )
+        }
     }
 }

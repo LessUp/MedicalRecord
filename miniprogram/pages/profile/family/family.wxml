@@ -1,0 +1,9 @@
+<view class="container">
+  <view class="member-list">
+    <view class="member-card" wx:for="{{members}}" wx:key="id">
+      <text class="name">{{item.name}}</text>
+      <text class="relationship">{{item.relationship}}</text>
+    </view>
+  </view>
+  <button class="add-btn">添加家庭成员</button>
+</view>

@@ -1,0 +1,27 @@
+<view class="container">
+  <view class="logo-area">
+    <image src="/images/logo.png" class="logo"/>
+    <text class="app-name">病历本</text>
+    <text class="slogan">您的私人健康档案管家</text>
+  </view>
+
+  <view class="btn-area">
+    <button 
+      class="wechat-btn" 
+      bindtap="loginWithWeChat"
+      loading="{{loading}}"
+      disabled="{{loading}}"
+    >
+      <text class="iconfont icon-wechat"></text>
+      微信登录
+    </button>
+
+    <button class="skip-btn" bindtap="skipLogin">
+      暂不登录，本地使用
+    </button>
+  </view>
+
+  <view class="footer">
+    <text>登录即表示同意《用户协议》和《隐私政策》</text>
+  </view>
+</view>

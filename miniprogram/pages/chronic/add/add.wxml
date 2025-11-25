@@ -1,0 +1,80 @@
+<view class="container">
+  <view class="form-section">
+    <view class="section-title">慢病信息</view>
+    <view class="form-card">
+      <view class="form-item">
+        <text class="label">疾病名称</text>
+        <input 
+          class="input" 
+          placeholder="如：高血压、糖尿病" 
+          value="{{name}}"
+          bindinput="onNameInput"
+        />
+      </view>
+      
+      <view class="form-item">
+        <text class="label">确诊日期</text>
+        <picker mode="date" value="{{diagnosedAt}}" bindchange="onDateChange">
+          <view class="picker-value">
+            {{diagnosedAt || '选择日期'}}
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item textarea-item">
+        <text class="label">备注</text>
+        <textarea 
+          class="textarea" 
+          placeholder="添加备注信息"
+          value="{{note}}"
+          bindinput="onNoteInput"
+          maxlength="500"
+        />
+      </view>
+    </view>
+  </view>
+
+  <view class="form-section">
+    <view class="section-title">复查计划</view>
+    <view class="form-card">
+      <view class="form-item">
+        <text class="label">复查周期</text>
+        <picker 
+          mode="selector" 
+          range="{{intervalOptions}}" 
+          range-key="label"
+          bindchange="onIntervalChange"
+        >
+          <view class="picker-value">
+            {{intervalMonths}}个月
+          </view>
+        </picker>
+      </view>
+      
+      <view class="form-item">
+        <text class="label">提前提醒</text>
+        <picker 
+          mode="selector" 
+          range="{{remindOptions}}" 
+          range-key="label"
+          bindchange="onRemindChange"
+        >
+          <view class="picker-value">
+            提前{{remindDays}}天
+          </view>
+        </picker>
+      </view>
+    </view>
+  </view>
+
+  <view class="btn-area">
+    <button 
+      class="save-btn" 
+      bindtap="save" 
+      disabled="{{saving || !name}}"
+      loading="{{saving}}"
+    >
+      保存
+    </button>
+  </view>
+</view>

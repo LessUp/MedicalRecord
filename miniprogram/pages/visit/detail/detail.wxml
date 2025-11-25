@@ -1,0 +1,5 @@
+<view class="container">
+  <view wx:if="{{visit}}">
+    <text class="hospital">{{visit.hospital}}</text>
+  </view>
+</view>
