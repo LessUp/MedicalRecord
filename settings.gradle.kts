@@ -28,3 +28,4 @@ dependencyResolutionManagement {
 rootProject.name = "MedLedger"
 include(":app")
 include(":shared")
+include(":backend")

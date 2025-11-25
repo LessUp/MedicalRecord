@@ -1,0 +1,47 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/visit/list/list",
+    "pages/visit/detail/detail",
+    "pages/visit/edit/edit",
+    "pages/chronic/list/list",
+    "pages/chronic/add/add",
+    "pages/profile/index/index",
+    "pages/profile/login/login",
+    "pages/profile/family/family",
+    "pages/calendar/index/index"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2E7D4A",
+    "navigationBarTitleText": "病历本",
+    "navigationBarTextStyle": "white"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#2E7D4A",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "images/tab/home.png",
+        "selectedIconPath": "images/tab/home-active.png"
+      },
+      {
+        "pagePath": "pages/chronic/list/list",
+        "text": "慢病",
+        "iconPath": "images/tab/heart.png",
+        "selectedIconPath": "images/tab/heart-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index/index",
+        "text": "我的",
+        "iconPath": "images/tab/user.png",
+        "selectedIconPath": "images/tab/user-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

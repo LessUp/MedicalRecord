@@ -1,0 +1,80 @@
+<view class="container">
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-input-wrap">
+      <icon type="search" size="16" color="#999"/>
+      <input 
+        class="search-input" 
+        placeholder="搜索医院、科室、医生" 
+        value="{{searchValue}}"
+        bindinput="onSearchInput"
+      />
+    </view>
+    <view class="calendar-btn" bindtap="goToCalendar">
+      <icon type="waiting" size="20" color="#2E7D4A"/>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stats-card">
+    <view class="stat-item">
+      <view class="stat-icon blue">
+        <text class="iconfont icon-calendar"></text>
+      </view>
+      <view class="stat-info">
+        <text class="stat-label">本月就诊</text>
+        <text class="stat-value">{{stats.monthlyCount}}</text>
+      </view>
+    </view>
+    <view class="stat-item">
+      <view class="stat-icon green">
+        <text class="iconfont icon-chart"></text>
+      </view>
+      <view class="stat-info">
+        <text class="stat-label">本年就诊</text>
+        <text class="stat-value">{{stats.yearlyCount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 就诊记录列表 -->
+  <view class="visit-list" wx:if="{{visits.length > 0}}">
+    <view 
+      class="visit-card" 
+      wx:for="{{visits}}" 
+      wx:key="id"
+      bindtap="goToDetail"
+      data-id="{{item.id}}"
+    >
+      <view class="visit-header">
+        <text class="hospital">{{item.hospital}}</text>
+        <text class="date">{{item.dateStr}}</text>
+      </view>
+      <view class="visit-info">
+        <view class="info-item" wx:if="{{item.department}}">
+          <text class="iconfont icon-building"></text>
+          <text>{{item.department}}</text>
+        </view>
+        <view class="info-item" wx:if="{{item.doctor}}">
+          <text class="iconfont icon-user"></text>
+          <text>{{item.doctor}}</text>
+        </view>
+      </view>
+      <view class="visit-footer" wx:if="{{item.cost}}">
+        <text class="cost">¥{{item.cost}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <image src="/images/empty.png" class="empty-image"/>
+    <text class="empty-title">暂无就诊记录</text>
+    <text class="empty-desc">点击下方按钮添加您的第一条就诊记录</text>
+  </view>
+
+  <!-- 添加按钮 -->
+  <view class="fab" bindtap="goToAdd">
+    <text class="fab-icon">+</text>
+  </view>
+</view>

@@ -1,0 +1,74 @@
+<view class="container">
+  <!-- 用户信息 -->
+  <view class="user-card" wx:if="{{isLoggedIn}}">
+    <view class="avatar-wrap">
+      <image class="avatar" src="{{userInfo.avatar || '/images/default-avatar.png'}}"/>
+    </view>
+    <view class="user-info">
+      <text class="nickname">{{userInfo.nickname || '用户'}}</text>
+      <text class="phone">{{userInfo.phone || ''}}</text>
+    </view>
+  </view>
+  
+  <view class="login-card" wx:else bindtap="goToLogin">
+    <view class="avatar-wrap">
+      <image class="avatar default" src="/images/default-avatar.png"/>
+    </view>
+    <view class="login-hint">
+      <text class="login-title">登录后同步数据到云端</text>
+      <view class="login-btn">
+        <text>立即登录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 同步状态 -->
+  <view class="sync-card" wx:if="{{isLoggedIn}}" bindtap="handleSync">
+    <view class="sync-icon">
+      <text class="iconfont icon-cloud"></text>
+    </view>
+    <view class="sync-info">
+      <text class="sync-title">数据已同步</text>
+      <text class="sync-time">最后同步: 刚刚</text>
+    </view>
+    <text class="sync-btn">立即同步</text>
+  </view>
+
+  <!-- 菜单列表 -->
+  <view class="menu-section">
+    <view class="section-title">数据管理</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="goToFamily">
+        <text class="iconfont icon-users"></text>
+        <text class="menu-text">家庭成员</text>
+        <text class="iconfont icon-right"></text>
+      </view>
+      <view class="menu-item" bindtap="goToBackup">
+        <text class="iconfont icon-backup"></text>
+        <text class="menu-text">数据备份</text>
+        <text class="iconfont icon-right"></text>
+      </view>
+    </view>
+  </view>
+
+  <view class="menu-section">
+    <view class="section-title">更多</view>
+    <view class="menu-list">
+      <view class="menu-item" bindtap="goToSettings">
+        <text class="iconfont icon-settings"></text>
+        <text class="menu-text">设置</text>
+        <text class="iconfont icon-right"></text>
+      </view>
+      <view class="menu-item" bindtap="goToAbout">
+        <text class="iconfont icon-info"></text>
+        <text class="menu-text">关于</text>
+        <text class="iconfont icon-right"></text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 退出登录 -->
+  <view class="logout-btn" wx:if="{{isLoggedIn}}" bindtap="handleLogout">
+    <text>退出登录</text>
+  </view>
+</view>
