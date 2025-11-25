@@ -10,11 +10,20 @@ import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
@@ -30,6 +39,7 @@ import java.util.Locale
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScanScreen(
     visitId: Long? = null,
@@ -48,10 +58,50 @@ fun ScanScreen(
     }
 
     if (!hasPermission) {
-        Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("需要相机权限以进行扫描")
-            Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) { Text("授权相机") }
-            Button(onClick = onClose) { Text("返回") }
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    title = { Text("扫描文档") },
+                    navigationIcon = {
+                        IconButton(onClick = onClose) {
+                            Icon(Icons.Outlined.ArrowBack, contentDescription = "返回")
+                        }
+                    }
+                )
+            }
+        ) { padding ->
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    Icons.Outlined.CameraAlt,
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.outline
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    "需要相机权限",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(Modifier.height(8.dp))
+                Text(
+                    "请授予相机权限以扫描文档",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(24.dp))
+                Button(onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) }) {
+                    Icon(Icons.Outlined.CameraAlt, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("授予相机权限")
+                }
+            }
         }
         return
     }
@@ -65,11 +115,13 @@ fun ScanScreen(
 
     var lastSaved by remember { mutableStateOf<String?>(null) }
     var pdfSaved by remember { mutableStateOf<String?>(null) }
+    var isCapturing by remember { mutableStateOf(false) }
     val captured by vm.captured.collectAsStateWithLifecycle()
 
-    Column(Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // 相机预览
         AndroidView(
-            modifier = Modifier.weight(1f).fillMaxWidth(),
+            modifier = Modifier.fillMaxSize(),
             factory = {
                 val pv = PreviewView(it)
                 previewView = pv
@@ -79,28 +131,191 @@ fun ScanScreen(
                 bindCameraUseCases(context, lifecycleOwner, pv, imageCapture, cameraExecutor)
             }
         )
-        Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            if (lastSaved != null) Text("已保存图片: ${lastSaved}")
-            Text("已拍摄: ${captured.size} 张")
-            if (pdfSaved != null) Text("已导出PDF: ${pdfSaved}")
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = {
-                    captureAndSave(context, imageCapture, cameraExecutor) { path ->
-                        lastSaved = path
-                        vm.saveCaptured(path, visitId)
-                    }
-                }) { Text("拍照保存") }
-                Button(onClick = { vm.clearCaptured(); lastSaved = null; pdfSaved = null }, enabled = captured.isNotEmpty()) { Text("清空已拍") }
+
+        // 顶部工具栏
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .statusBarsPadding()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FilledTonalIconButton(
+                onClick = onClose,
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                )
+            ) {
+                Icon(Icons.Outlined.Close, contentDescription = "关闭")
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Button(onClick = {
-                    vm.exportPdf(context, visitId) { path ->
-                        pdfSaved = path
-                        vm.clearCaptured()
-                    }
-                }, enabled = captured.size >= 2) { Text("导出为 PDF") }
-                Button(onClick = onClose) { Text("完成") }
+
+            if (captured.isNotEmpty()) {
+                AssistChip(
+                    onClick = {},
+                    label = { Text("${captured.size} 张") },
+                    leadingIcon = {
+                        Icon(
+                            Icons.Outlined.Image,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f)
+                    )
+                )
             }
+        }
+
+        // 底部控制面板
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.BottomCenter)
+                .background(
+                    MaterialTheme.colorScheme.surface.copy(alpha = 0.95f),
+                    RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
+                )
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // 已拍摄的图片预览
+            if (captured.isNotEmpty()) {
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(captured) { path ->
+                        Box(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(
+                                    2.dp,
+                                    MaterialTheme.colorScheme.outline,
+                                    RoundedCornerShape(8.dp)
+                                )
+                        ) {
+                            // 使用简单的占位符代替 Coil，因为可能没有添加依赖
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Outlined.Image,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+
+            // 成功提示
+            pdfSaved?.let { path ->
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Outlined.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "PDF 已保存",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
+                Spacer(Modifier.height(16.dp))
+            }
+
+            // 拍照按钮
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // 清空按钮
+                FilledTonalIconButton(
+                    onClick = { vm.clearCaptured(); lastSaved = null; pdfSaved = null },
+                    enabled = captured.isNotEmpty()
+                ) {
+                    Icon(Icons.Outlined.DeleteSweep, contentDescription = "清空")
+                }
+
+                // 拍照按钮
+                FilledIconButton(
+                    onClick = {
+                        isCapturing = true
+                        captureAndSave(context, imageCapture, cameraExecutor) { path ->
+                            lastSaved = path
+                            vm.saveCaptured(path, visitId)
+                            isCapturing = false
+                        }
+                    },
+                    enabled = !isCapturing,
+                    modifier = Modifier.size(72.dp),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    )
+                ) {
+                    if (isCapturing) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            strokeWidth = 3.dp
+                        )
+                    } else {
+                        Icon(
+                            Icons.Outlined.CameraAlt,
+                            contentDescription = "拍照",
+                            modifier = Modifier.size(32.dp)
+                        )
+                    }
+                }
+
+                // 导出 PDF 按钮
+                FilledTonalIconButton(
+                    onClick = {
+                        vm.exportPdf(context, visitId) { path ->
+                            pdfSaved = path
+                            vm.clearCaptured()
+                        }
+                    },
+                    enabled = captured.size >= 2
+                ) {
+                    Icon(Icons.Outlined.PictureAsPdf, contentDescription = "导出PDF")
+                }
+            }
+
+            Spacer(Modifier.height(8.dp))
+
+            // 完成按钮
+            Button(
+                onClick = onClose,
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Icon(Icons.Outlined.Check, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text("完成")
+            }
+
+            Spacer(Modifier.navigationBarsPadding())
         }
     }
 }

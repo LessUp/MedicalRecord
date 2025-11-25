@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import com.lessup.medledger.ui.home.HomeScreen
 import com.lessup.medledger.ui.chronic.ChronicScreen
 import com.lessup.medledger.ui.settings.SettingsScreen
+import com.lessup.medledger.ui.calendar.CalendarScreen
 
 sealed class Dest(val route: String, val label: String, val icon: ImageVector) {
     data object Home : Dest("home", "首页", Icons.Outlined.Home)
@@ -27,7 +28,8 @@ fun AppNavHost(navController: NavHostController) {
         composable(Dest.Home.route) {
             HomeScreen(
                 onEdit = { id -> if (id == null) navController.navigate("visit/edit") else navController.navigate("visit/detail/$id") },
-                onScan = { navController.navigate("scan") }
+                onScan = { navController.navigate("scan") },
+                onCalendar = { navController.navigate("calendar") }
             )
         }
         composable(Dest.Chronic.route) { ChronicScreen() }
@@ -52,6 +54,12 @@ fun AppNavHost(navController: NavHostController) {
         composable("scan/{visitId}") { backStackEntry ->
             val vid = backStackEntry.arguments?.getString("visitId")?.toLongOrNull()
             com.lessup.medledger.ui.scan.ScanScreen(visitId = vid, onClose = { navController.popBackStack() })
+        }
+        composable("calendar") {
+            CalendarScreen(
+                onClose = { navController.popBackStack() },
+                onVisitClick = { id -> navController.navigate("visit/detail/$id") }
+            )
         }
     }
 }

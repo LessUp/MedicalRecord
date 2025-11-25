@@ -94,6 +94,18 @@ class ChronicRepository @Inject constructor(
         }
     }
 
+    suspend fun deleteCondition(conditionId: Long) {
+        // 先删除关联的复查计划
+        val plans = planDao.getByCondition(conditionId)
+        plans.forEach { plan ->
+            planDao.delete(plan)
+        }
+        // 再删除慢病记录
+        conditionDao.getAll().find { it.id == conditionId }?.let { condition ->
+            conditionDao.delete(condition)
+        }
+    }
+
     private fun scheduleReminder(conditionName: String, plan: CheckupPlan) {
         val schedule = computeSchedule(plan) ?: return
         val remindAtMillis = schedule.remindAtMillis

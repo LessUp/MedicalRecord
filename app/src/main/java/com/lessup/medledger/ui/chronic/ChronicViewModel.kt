@@ -53,6 +53,12 @@ class ChronicViewModel @Inject constructor(
             }
         }
     }
+
+    fun deleteCondition(conditionId: Long) {
+        viewModelScope.launch {
+            repository.deleteCondition(conditionId)
+        }
+    }
 }
 
 data class ChronicUiState(
