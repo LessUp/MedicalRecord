@@ -38,6 +38,8 @@ fun LoginScreen(
     val uiState by viewModel.loginUiState.collectAsStateWithLifecycle()
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
+    var showWeChatDialog by remember { mutableStateOf(false) }
+    var weChatCode by remember { mutableStateOf("") }
     
     // 登录成功后跳转
     LaunchedEffect(authState) {
@@ -246,7 +248,7 @@ fun LoginScreen(
             
             // 微信登录按钮
             OutlinedButton(
-                onClick = { /* TODO: 微信登录 */ },
+                onClick = { showWeChatDialog = true },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
@@ -273,7 +275,7 @@ fun LoginScreen(
             TextButton(onClick = onSkip) {
                 Text("暂不登录，本地使用")
             }
-            
+
             // 协议说明
             Text(
                 text = "登录即表示同意《用户协议》和《隐私政策》",
@@ -283,5 +285,61 @@ fun LoginScreen(
                 modifier = Modifier.padding(bottom = 16.dp)
             )
         }
+    }
+
+    if (showWeChatDialog) {
+        AlertDialog(
+            onDismissRequest = { showWeChatDialog = false },
+            icon = { Icon(Icons.Outlined.Chat, contentDescription = null) },
+            title = { Text("微信登录") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "请输入微信授权码，完成后将在后台同步您的数据。",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                    OutlinedTextField(
+                        value = weChatCode,
+                        onValueChange = { weChatCode = it.trim() },
+                        label = { Text("授权码") },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                        keyboardActions = KeyboardActions(
+                            onDone = {
+                                if (weChatCode.isNotBlank()) {
+                                    viewModel.loginWithWeChat(weChatCode)
+                                    showWeChatDialog = false
+                                    weChatCode = ""
+                                }
+                            }
+                        )
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.loginWithWeChat(weChatCode)
+                        showWeChatDialog = false
+                        weChatCode = ""
+                    },
+                    enabled = weChatCode.isNotBlank() && !uiState.isLoading
+                ) {
+                    if (uiState.isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp
+                        )
+                    } else {
+                        Text("授权并登录")
+                    }
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showWeChatDialog = false }) {
+                    Text("取消")
+                }
+            }
+        )
     }
 }

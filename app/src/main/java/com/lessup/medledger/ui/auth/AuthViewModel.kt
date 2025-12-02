@@ -6,6 +6,7 @@ import com.lessup.medledger.model.User
 import com.lessup.medledger.network.ApiClient
 import com.lessup.medledger.network.TokenProvider
 import com.lessup.medledger.sync.SyncEngine
+import com.lessup.medledger.sync.SyncState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +47,8 @@ class AuthViewModel @Inject constructor() : ViewModel(), KoinComponent {
     private val apiClient: ApiClient by inject()
     private val tokenProvider: TokenProvider by inject()
     private val syncEngine: SyncEngine by inject()
+
+    val syncState: StateFlow<SyncState> = syncEngine.syncState
     
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unknown)
     val authState: StateFlow<AuthState> = _authState.asStateFlow()
@@ -219,6 +222,15 @@ class AuthViewModel @Inject constructor() : ViewModel(), KoinComponent {
                     error = e.message ?: "微信登录失败"
                 )
             }
+        }
+    }
+
+    /**
+     * 立即同步
+     */
+    fun syncNow() {
+        viewModelScope.launch {
+            syncEngine.sync()
         }
     }
     

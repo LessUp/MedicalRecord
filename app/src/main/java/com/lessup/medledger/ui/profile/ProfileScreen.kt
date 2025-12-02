@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +22,7 @@ import com.lessup.medledger.model.User
 import com.lessup.medledger.sync.SyncState
 import com.lessup.medledger.ui.auth.AuthState
 import com.lessup.medledger.ui.auth.AuthViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -31,7 +33,9 @@ fun ProfileScreen(
     authViewModel: AuthViewModel = hiltViewModel()
 ) {
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
+    val syncState by authViewModel.syncState.collectAsStateWithLifecycle()
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
     
     Scaffold(
         topBar = {
@@ -59,7 +63,12 @@ fun ProfileScreen(
             // 同步状态卡片
             if (authState is AuthState.LoggedIn) {
                 item {
-                    SyncStatusCard()
+                    SyncStatusCard(
+                        syncState = syncState,
+                        onSyncNow = {
+                            scope.launch { authViewModel.syncNow() }
+                        }
+                    )
                 }
             }
             
@@ -249,7 +258,10 @@ private fun UserInfoCard(
 }
 
 @Composable
-private fun SyncStatusCard() {
+private fun SyncStatusCard(
+    syncState: SyncState,
+    onSyncNow: () -> Unit
+) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -271,18 +283,35 @@ private fun SyncStatusCard() {
             Spacer(modifier = Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "数据已同步",
+                    text = when (syncState) {
+                        SyncState.Idle -> "等待同步"
+                        SyncState.Syncing -> "正在同步"
+                        is SyncState.Success -> "数据已同步"
+                        is SyncState.Error -> "同步失败"
+                    },
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.Medium
                 )
                 Text(
-                    text = "最后同步: 刚刚",
+                    text = when (syncState) {
+                        is SyncState.Success -> "最后同步: " + java.text.SimpleDateFormat(
+                            "yyyy-MM-dd HH:mm",
+                            java.util.Locale.getDefault()
+                        ).format(java.util.Date(syncState.timestamp))
+                        is SyncState.Error -> syncState.message,
+                        SyncState.Syncing -> "正在与云端对齐...",
+                        SyncState.Idle -> "等待首次同步"
+                    },
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (syncState is SyncState.Error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            TextButton(onClick = { /* TODO: 手动同步 */ }) {
-                Text("立即同步")
+            TextButton(onClick = onSyncNow, enabled = syncState != SyncState.Syncing) {
+                if (syncState == SyncState.Syncing) {
+                    CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                } else {
+                    Text("立即同步")
+                }
             }
         }
     }
