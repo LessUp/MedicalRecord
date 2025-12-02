@@ -26,6 +26,8 @@ import androidx.core.content.FileProvider
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.lessup.medledger.notifications.ReminderWorker
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,13 +41,14 @@ import java.util.zip.ZipOutputStream
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var isExporting by remember { mutableStateOf(false) }
     var showAboutDialog by remember { mutableStateOf(false) }
     var showClearDialog by remember { mutableStateOf(false) }
     var lastExportPath by remember { mutableStateOf<String?>(null) }
+    val isClearing by viewModel.isClearing.collectAsStateWithLifecycle()
 
     val permissionGranted: MutableState<Boolean> = remember { mutableStateOf(isNotificationGranted(context)) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
@@ -227,12 +230,32 @@ fun SettingsScreen() {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        // TODO: 实现清除数据功能
-                        Toast.makeText(context, "功能开发中...", Toast.LENGTH_SHORT).show()
-                        showClearDialog = false
+                        viewModel.clearAllData(
+                            onFinished = { result ->
+                                Toast.makeText(
+                                    context,
+                                    "清除完成，删除图片${result.deletedPictures}张，文档${result.deletedDocuments}份",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                showClearDialog = false
+                            },
+                            onError = {
+                                Toast.makeText(
+                                    context,
+                                    "清除失败: ${it.message}",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        )
                     },
                     colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
-                ) { Text("清除") }
+                ) {
+                    if (isClearing) {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                    } else {
+                        Text("清除")
+                    }
+                }
             },
             dismissButton = {
                 TextButton(onClick = { showClearDialog = false }) { Text("取消") }
