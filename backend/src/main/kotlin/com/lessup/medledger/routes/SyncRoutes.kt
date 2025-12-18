@@ -13,6 +13,7 @@ import org.koin.ktor.ext.inject
 @Serializable
 data class SyncChange(
     val entityType: String,
+    val localId: Long = 0,
     val entityId: String,
     val action: String,
     val data: String?,

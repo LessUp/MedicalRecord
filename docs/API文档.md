@@ -147,6 +147,7 @@ GET /sync?since=1700000000000
   "changes": [
     {
       "entityType": "visit",
+      "localId": 0,
       "entityId": "550e8400-e29b-41d4-a716-446655440000",
       "action": "INSERT",
       "data": "{\"hospital\":\"北京协和医院\",...}",
@@ -171,6 +172,7 @@ POST /sync
   "changes": [
     {
       "entityType": "visit",
+      "localId": 1,
       "entityId": "",
       "action": "INSERT",
       "data": "{\"hospital\":\"北京协和医院\",...}",
@@ -190,7 +192,7 @@ POST /sync
   "data": [
     {
       "entityType": "visit",
-      "localId": 0,
+      "localId": 1,
       "remoteId": "550e8400-e29b-41d4-a716-446655440000",
       "version": 2
     }

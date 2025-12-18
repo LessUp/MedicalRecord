@@ -26,6 +26,10 @@ class VisitRepository(
     suspend fun getById(id: Long): Visit? {
         return queries.selectById(id).executeAsOneOrNull()?.toModel()
     }
+
+    suspend fun getByRemoteId(remoteId: String): Visit? {
+        return queries.selectByRemoteId(remoteId).executeAsOneOrNull()?.toModel()
+    }
     
     suspend fun insert(visit: Visit): Long {
         val now = currentTimeMillis()

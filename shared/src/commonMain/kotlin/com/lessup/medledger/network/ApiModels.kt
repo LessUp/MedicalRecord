@@ -63,6 +63,7 @@ data class RefreshTokenRequest(
 @Serializable
 data class SyncChange(
     val entityType: String,     // visit, document, chronic_condition, checkup_plan, family_member
+    val localId: Long = 0,
     val entityId: String,       // remoteId
     val action: String,         // INSERT, UPDATE, DELETE
     val data: String?,          // JSON serialized entity data

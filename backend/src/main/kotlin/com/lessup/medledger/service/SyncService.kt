@@ -25,19 +25,24 @@ class SyncService {
             } else {
                 change.entityId
             }
+
+            val newVersion = change.version + 1
+            val now = System.currentTimeMillis()
             
             // 存储变更
             userLogs.add(change.copy(
+                localId = 0,
                 entityId = remoteId,
-                timestamp = System.currentTimeMillis()
+                version = newVersion,
+                timestamp = now
             ))
             
             // 生成确认
             confirmations.add(SyncConfirmation(
                 entityType = change.entityType,
-                localId = 0, // 客户端会根据 entityType 和时间戳匹配
+                localId = change.localId, // 回传客户端 localId，用于回填 remoteId 映射
                 remoteId = remoteId,
-                version = change.version + 1
+                version = newVersion
             ))
         }
         

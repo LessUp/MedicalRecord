@@ -9,6 +9,7 @@ import com.lessup.medledger.repository.VisitRepository
 import com.lessup.medledger.repository.currentTimeMillis
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -107,23 +108,29 @@ class SyncEngine(
     }
     
     private suspend fun mergeVisitChange(change: SyncChange) {
-        val remoteVisit = change.data?.let { json.decodeFromString<Visit>(it) } ?: return
-        val localVisit = visitRepository.getById(remoteVisit.localId)
-        
+        val remoteVisit = change.data?.let { json.decodeFromString<Visit>(it) }
+        val remoteId = change.entityId.ifBlank { remoteVisit?.remoteId ?: return }
+
         when (change.action) {
-            "INSERT", "UPDATE" -> {
-                if (localVisit == null) {
-                    // 本地没有，直接插入
-                    visitRepository.insert(remoteVisit.copy(syncStatus = SyncStatus.SYNCED))
-                } else {
-                    // 本地有，需要合并
-                    val resolved = resolveConflict(localVisit, remoteVisit)
-                    visitRepository.update(resolved)
-                }
-            }
             "DELETE" -> {
-                if (localVisit != null) {
-                    visitRepository.delete(localVisit.localId)
+                val localVisit = visitRepository.getByRemoteId(remoteId) ?: return
+                visitRepository.delete(localVisit.localId)
+                visitRepository.markSynced(localVisit.localId, remoteId, change.version)
+            }
+            "INSERT", "UPDATE" -> {
+                val remote = (remoteVisit ?: return).copy(remoteId = remoteId, version = change.version)
+                val localVisit = visitRepository.getByRemoteId(remoteId)
+
+                if (localVisit == null) {
+                    val localId = visitRepository.insert(remote.copy(localId = 0, syncStatus = SyncStatus.SYNCED))
+                    visitRepository.markSynced(localId, remoteId, change.version)
+                    return
+                }
+
+                val resolved = resolveConflict(localVisit, remote)
+                if (resolved.syncStatus == SyncStatus.SYNCED) {
+                    visitRepository.update(resolved.copy(localId = localVisit.localId))
+                    visitRepository.markSynced(localVisit.localId, remoteId, change.version)
                 }
             }
         }
@@ -166,6 +173,7 @@ class SyncEngine(
             changes.add(
                 SyncChange(
                     entityType = "visit",
+                    localId = visit.localId,
                     entityId = visit.remoteId ?: "",
                     action = action,
                     data = json.encodeToString(visit),
