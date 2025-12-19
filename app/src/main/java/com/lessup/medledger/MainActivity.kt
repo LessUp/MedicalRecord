@@ -26,13 +26,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import dagger.hilt.android.AndroidEntryPoint
 import com.lessup.medledger.ui.theme.AppTheme
 import com.lessup.medledger.ui.navigation.AppNavHost
 import com.lessup.medledger.ui.navigation.bottomDestinations
 import com.lessup.medledger.ui.navigation.Dest
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

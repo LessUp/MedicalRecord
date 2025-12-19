@@ -1,11 +1,7 @@
 plugins {
     id("com.android.application") version "8.5.2"
     id("org.jetbrains.kotlin.android") version "1.9.24"
-    id("com.google.devtools.ksp") version "1.9.24-1.0.20"
-    id("com.google.dagger.hilt.android") version "2.51.1"
 }
-
-apply(plugin = "org.jetbrains.kotlin.kapt")
 
 android {
     namespace = "com.lessup.medledger"
@@ -82,19 +78,9 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
 
-    // Hilt (保留用于渐进迁移)
-    implementation("com.google.dagger:hilt-android:2.51.1")
-    kapt("com.google.dagger:hilt-android-compiler:2.51.1")
-    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
-
     // Koin (新增，用于共享模块)
     implementation("io.insert-koin:koin-android:3.5.3")
     implementation("io.insert-koin:koin-androidx-compose:3.5.3")
-
-    // Room (保留用于渐进迁移)
-    implementation("androidx.room:room-runtime:2.6.1")
-    implementation("androidx.room:room-ktx:2.6.1")
-    ksp("androidx.room:room-compiler:2.6.1")
 
     // Security Crypto (加密存储)
     implementation("androidx.security:security-crypto:1.1.0-alpha06")
@@ -104,8 +90,6 @@ dependencies {
 
     // WorkManager + HiltX
     implementation("androidx.work:work-runtime-ktx:2.9.1")
-    implementation("androidx.hilt:hilt-work:1.2.0")
-    kapt("androidx.hilt:hilt-compiler:1.2.0")
 
     // CameraX
     implementation("androidx.camera:camera-core:1.3.4")
@@ -123,8 +107,4 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
-}
-
-kapt {
-    correctErrorTypes = true
 }

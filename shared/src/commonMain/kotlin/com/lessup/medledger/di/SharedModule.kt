@@ -2,6 +2,8 @@ package com.lessup.medledger.di
 
 import com.lessup.medledger.db.MedLedgerDatabase
 import com.lessup.medledger.network.ApiClient
+import com.lessup.medledger.repository.ChronicRepository
+import com.lessup.medledger.repository.DocumentRepository
 import com.lessup.medledger.repository.VisitRepository
 import com.lessup.medledger.sync.SyncEngine
 import kotlinx.serialization.json.Json
@@ -31,6 +33,8 @@ val sharedModule = module {
     
     // Repositories
     single { VisitRepository(get()) }
+    single { DocumentRepository(get()) }
+    single { ChronicRepository(get()) }
     
     // Sync Engine
     single {

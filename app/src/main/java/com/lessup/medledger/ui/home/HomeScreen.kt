@@ -36,9 +36,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lessup.medledger.data.entity.Visit
+import com.lessup.medledger.model.Visit
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -51,7 +51,7 @@ fun HomeScreen(
     onEdit: (Long?) -> Unit,
     onScan: () -> Unit,
     onCalendar: () -> Unit = {},
-    vm: HomeViewModel = hiltViewModel()
+    vm: HomeViewModel = koinViewModel()
 ) {
     val visits by vm.visits.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
@@ -159,10 +159,10 @@ fun HomeScreen(
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(filteredVisits, key = { it.id }) { visit ->
+                items(filteredVisits, key = { it.localId }) { visit ->
                     VisitCard(
                         visit = visit,
-                        onClick = { onEdit(visit.id) },
+                        onClick = { onEdit(visit.localId) },
                         onDelete = { showDeleteDialog = visit },
                         modifier = Modifier.animateItem(
                             fadeInSpec = spring(stiffness = Spring.StiffnessMediumLow),

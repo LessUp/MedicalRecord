@@ -2,10 +2,8 @@ package com.lessup.medledger.ui.visit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lessup.medledger.data.entity.Visit
-import com.lessup.medledger.data.repository.VisitRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
+import com.lessup.medledger.model.Visit
+import com.lessup.medledger.repository.VisitRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -25,8 +23,7 @@ data class VisitEditUiState(
     val saving: Boolean = false
 )
 
-@HiltViewModel
-class VisitEditViewModel @Inject constructor(
+class VisitEditViewModel(
     private val repo: VisitRepository
 ) : ViewModel() {
 
@@ -38,7 +35,7 @@ class VisitEditViewModel @Inject constructor(
         viewModelScope.launch {
             val v = repo.getById(id) ?: return@launch
             _ui.value = _ui.value.copy(
-                id = v.id,
+                id = v.localId,
                 dateText = LocalDate.ofEpochDay(v.date / 86_400_000L).toString(),
                 hospital = v.hospital,
                 department = v.department.orEmpty(),
@@ -68,7 +65,7 @@ class VisitEditViewModel @Inject constructor(
             }.getOrElse { System.currentTimeMillis() }
             val cost = s.costText.toDoubleOrNull()
             val entity = Visit(
-                id = s.id ?: 0L,
+                localId = s.id ?: 0L,
                 date = date,
                 hospital = s.hospital.trim(),
                 department = s.department.trim().ifEmpty { null },
@@ -77,7 +74,11 @@ class VisitEditViewModel @Inject constructor(
                 cost = cost,
                 note = s.note.trim().ifEmpty { null }
             )
-            repo.upsert(entity)
+            if (entity.localId == 0L) {
+                repo.insert(entity)
+            } else {
+                repo.update(entity)
+            }
             onSaved()
         }
     }

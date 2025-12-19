@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -31,7 +31,7 @@ fun VisitDetailScreen(
     onClose: () -> Unit,
     onEdit: () -> Unit,
     onScan: () -> Unit,
-    vm: VisitDetailViewModel = hiltViewModel()
+    vm: VisitDetailViewModel = koinViewModel()
 ) {
     LaunchedEffect(visitId) { vm.load(visitId) }
 
@@ -276,7 +276,7 @@ fun VisitDetailScreen(
 
             // 文档列表
             if (docs.isNotEmpty()) {
-                items(docs, key = { it.id }) { doc ->
+                items(docs, key = { it.localId }) { doc ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -298,7 +298,7 @@ fun VisitDetailScreen(
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
-                                    if (doc.path.endsWith(".pdf")) Icons.Outlined.PictureAsPdf 
+                                    if ((doc.localPath ?: doc.remotePath).orEmpty().endsWith(".pdf")) Icons.Outlined.PictureAsPdf 
                                     else Icons.Outlined.Image,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer

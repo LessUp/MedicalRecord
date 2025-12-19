@@ -22,8 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -34,7 +34,7 @@ import java.time.format.DateTimeFormatter
 fun VisitEditScreen(
     visitId: Long?,
     onClose: () -> Unit,
-    vm: VisitEditViewModel = hiltViewModel()
+    vm: VisitEditViewModel = koinViewModel()
 ) {
     LaunchedEffect(visitId) { vm.load(visitId) }
     val ui by vm.ui.collectAsStateWithLifecycle()
