@@ -74,3 +74,6 @@ UPDATE Document SET deletedAt = ?, updatedAt = ?, syncStatus = 'PENDING' WHERE l
 
 hardDelete:
 DELETE FROM Document WHERE localId = ?;
+
+deleteAll:
+DELETE FROM Document;

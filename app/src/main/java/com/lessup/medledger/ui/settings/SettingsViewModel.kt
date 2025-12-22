@@ -4,11 +4,8 @@ import android.content.Context
 import android.os.Environment
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lessup.medledger.data.db.AppDatabase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.lessup.medledger.db.MedLedgerDatabase
 import java.io.File
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,10 +13,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val database: AppDatabase
+class SettingsViewModel(
+    private val context: Context,
+    private val database: MedLedgerDatabase
 ) : ViewModel() {
 
     private val _isClearing = MutableStateFlow(false)
@@ -37,7 +33,14 @@ class SettingsViewModel @Inject constructor(
             _isClearing.value = true
             try {
                 val result = withContext(Dispatchers.IO) {
-                    database.clearAllTables()
+                    database.transaction {
+                        database.checkupPlanQueries.deleteAll()
+                        database.chronicConditionQueries.deleteAll()
+                        database.documentQueries.deleteAll()
+                        database.visitQueries.deleteAll()
+                        database.familyMemberQueries.deleteAll()
+                        database.userQueries.deleteAll()
+                    }
                     val pictures = clearDirectory(context.getExternalFilesDir(Environment.DIRECTORY_PICTURES))
                     val documents = clearDirectory(context.getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS))
                     ClearResult(pictures, documents)

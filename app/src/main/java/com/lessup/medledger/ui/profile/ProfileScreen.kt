@@ -16,13 +16,13 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.lessup.medledger.model.User
 import com.lessup.medledger.sync.SyncState
 import com.lessup.medledger.ui.auth.AuthState
 import com.lessup.medledger.ui.auth.AuthViewModel
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,7 +30,7 @@ fun ProfileScreen(
     onLogin: () -> Unit,
     onFamilyMembers: () -> Unit,
     onSettings: () -> Unit,
-    authViewModel: AuthViewModel = hiltViewModel()
+    authViewModel: AuthViewModel = koinViewModel()
 ) {
     val authState by authViewModel.authState.collectAsStateWithLifecycle()
     val syncState by authViewModel.syncState.collectAsStateWithLifecycle()

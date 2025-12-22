@@ -61,28 +61,29 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardOptions
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lessup.medledger.data.repository.ChronicRepository
+import com.lessup.medledger.model.ConditionOverview
+import com.lessup.medledger.model.PlanOverview
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
-import androidx.compose.material3.rememberDatePickerState
-import androidx.compose.ui.text.input.KeyboardType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChronicScreen(
-    vm: ChronicViewModel = hiltViewModel()
+    vm: ChronicViewModel = koinViewModel()
 ) {
     val uiState by vm.uiState.collectAsStateWithLifecycle()
     val isSaving by vm.isSaving.collectAsStateWithLifecycle()
     var showDialog by remember { mutableStateOf(false) }
-    var showDeleteDialog by remember { mutableStateOf<ChronicRepository.ConditionOverview?>(null) }
+    var showDeleteDialog by remember { mutableStateOf<ConditionOverview?>(null) }
     val formatter = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
 
     Scaffold(
@@ -136,7 +137,7 @@ fun ChronicScreen(
                     contentPadding = PaddingValues(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    items(uiState.conditions, key = { it.condition.id }) { overview ->
+                    items(uiState.conditions, key = { it.condition.localId }) { overview ->
                         ConditionCard(
                             overview = overview,
                             formatter = formatter,
@@ -171,7 +172,7 @@ fun ChronicScreen(
             confirmButton = {
                 TextButton(
                     onClick = {
-                        vm.deleteCondition(overview.condition.id)
+                        vm.deleteCondition(overview.condition.localId)
                         showDeleteDialog = null
                     },
                     colors = androidx.compose.material3.ButtonDefaults.textButtonColors(
@@ -188,7 +189,7 @@ fun ChronicScreen(
 
 @Composable
 private fun ConditionCard(
-    overview: ChronicRepository.ConditionOverview,
+    overview: ConditionOverview,
     formatter: DateTimeFormatter,
     onDelete: () -> Unit
 ) {
@@ -322,11 +323,13 @@ private fun ConditionCard(
 
 @Composable
 private fun PlanItem(
-    plan: ChronicRepository.PlanOverview,
+    plan: PlanOverview,
     formatter: DateTimeFormatter
 ) {
     val items = plan.plan.items?.takeIf { it.isNotBlank() }
-    val nextCheck = plan.nextCheckDate
+    val nextCheck = plan.nextCheckDate?.let {
+        Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate()
+    }
     val daysUntil = nextCheck?.let { ChronoUnit.DAYS.between(LocalDate.now(), it).toInt() }
     
     // 计算进度（假设复查周期内的进度）
@@ -443,7 +446,10 @@ private fun PlanItem(
             }
 
             // 提醒信息
-            plan.remindDate?.let { remindDate ->
+            plan.remindDate?.let { remindAtMillis ->
+                val remindDate = Instant.ofEpochMilli(remindAtMillis)
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate()
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Outlined.NotificationsActive,

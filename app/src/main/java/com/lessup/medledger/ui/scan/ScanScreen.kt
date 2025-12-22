@@ -31,8 +31,8 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.camera.view.PreviewView
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.androidx.compose.koinViewModel
 import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -44,7 +44,7 @@ import java.util.concurrent.Executors
 fun ScanScreen(
     visitId: Long? = null,
     onClose: () -> Unit,
-    vm: ScanViewModel = hiltViewModel()
+    vm: ScanViewModel = koinViewModel()
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current

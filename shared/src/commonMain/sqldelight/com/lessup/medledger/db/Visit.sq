@@ -90,3 +90,6 @@ UPDATE Visit SET deletedAt = ?, updatedAt = ?, syncStatus = 'PENDING' WHERE loca
 
 hardDelete:
 DELETE FROM Visit WHERE localId = ?;
+
+deleteAll:
+DELETE FROM Visit;

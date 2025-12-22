@@ -73,3 +73,6 @@ UPDATE FamilyMember SET deletedAt = ?, updatedAt = ?, syncStatus = 'PENDING' WHE
 
 hardDelete:
 DELETE FROM FamilyMember WHERE localId = ?;
+
+deleteAll:
+DELETE FROM FamilyMember;

@@ -3,11 +3,8 @@ package com.lessup.medledger.data.repository
 import com.lessup.medledger.data.dao.VisitDao
 import com.lessup.medledger.data.entity.Visit
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class VisitRepository @Inject constructor(
+class VisitRepository(
     private val visitDao: VisitDao
 ) {
     fun getVisits(): Flow<List<Visit>> = visitDao.getAll()

@@ -1,12 +1,7 @@
 package com.lessup.medledger.data.entity
 
-import androidx.room.Entity
-import androidx.room.Index
-import androidx.room.PrimaryKey
-
-@Entity(tableName = "visits", indices = [Index("date")])
 data class Visit(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val id: Long = 0,
     val date: Long,
     val hospital: String,
     val department: String? = null,
@@ -16,12 +11,8 @@ data class Visit(
     val note: String? = null
 )
 
-@Entity(
-    tableName = "documents",
-    indices = [Index("visitId")]
-)
 data class Document(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val id: Long = 0,
     val title: String,
     val type: String, // scan/prescription/report
     val createdAt: Long,
@@ -32,23 +23,15 @@ data class Document(
     val tags: String? = null // 逗号分隔
 )
 
-@Entity(
-    tableName = "prescriptions",
-    indices = [Index("visitId")]
-)
 data class Prescription(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val id: Long = 0,
     val visitId: Long,
     val title: String? = null,
     val note: String? = null
 )
 
-@Entity(
-    tableName = "drug_items",
-    indices = [Index("prescriptionId")]
-)
 data class DrugItem(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val id: Long = 0,
     val prescriptionId: Long,
     val name: String,
     val spec: String? = null,
@@ -58,21 +41,16 @@ data class DrugItem(
     val note: String? = null
 )
 
-@Entity(tableName = "chronic_conditions")
 data class ChronicCondition(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val id: Long = 0,
     val name: String,
     val diagnosedAt: Long? = null,
     val department: String? = null,
     val note: String? = null
 )
 
-@Entity(
-    tableName = "checkup_plans",
-    indices = [Index("conditionId")]
-)
 data class CheckupPlan(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    val id: Long = 0,
     val conditionId: Long,
     val items: String? = null, // 逗号分隔
     val intervalMonths: Int,

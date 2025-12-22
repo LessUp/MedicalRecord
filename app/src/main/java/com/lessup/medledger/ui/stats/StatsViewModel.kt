@@ -2,14 +2,12 @@ package com.lessup.medledger.ui.stats
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.lessup.medledger.data.repository.VisitRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.lessup.medledger.repository.VisitRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
-import javax.inject.Inject
 
 data class StatsUiState(
     val selectedYear: Int = LocalDate.now().year,
@@ -22,8 +20,7 @@ data class StatsUiState(
     val isLoading: Boolean = false
 )
 
-@HiltViewModel
-class StatsViewModel @Inject constructor(
+class StatsViewModel(
     private val visitRepository: VisitRepository
 ) : ViewModel() {
     
@@ -47,7 +44,7 @@ class StatsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             
-            visitRepository.getVisits().collect { visits ->
+            visitRepository.observeAll().collect { visits ->
                 val year = _uiState.value.selectedYear
                 val zone = ZoneId.systemDefault()
                 

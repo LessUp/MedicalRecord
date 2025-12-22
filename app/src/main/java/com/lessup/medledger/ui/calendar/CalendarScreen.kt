@@ -24,9 +24,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.lessup.medledger.data.entity.Visit
+import com.lessup.medledger.model.Visit
+import org.koin.androidx.compose.koinViewModel
 import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
@@ -40,7 +40,7 @@ import java.util.*
 fun CalendarScreen(
     onClose: () -> Unit,
     onVisitClick: (Long) -> Unit,
-    vm: CalendarViewModel = hiltViewModel()
+    vm: CalendarViewModel = koinViewModel()
 ) {
     val visits by vm.visits.collectAsStateWithLifecycle()
     var currentMonth by remember { mutableStateOf(YearMonth.now()) }
@@ -137,10 +137,10 @@ fun CalendarScreen(
                         contentPadding = PaddingValues(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(selectedVisits, key = { it.id }) { visit ->
+                        items(selectedVisits, key = { it.localId }) { visit ->
                             VisitItem(
                                 visit = visit,
-                                onClick = { onVisitClick(visit.id) }
+                                onClick = { onVisitClick(visit.localId) }
                             )
                         }
                         item { Spacer(Modifier.height(16.dp)) }

@@ -6,9 +6,6 @@ import com.lessup.medledger.data.dao.CheckupPlanDao
 import com.lessup.medledger.data.entity.CheckupPlan
 import com.lessup.medledger.data.entity.ChronicCondition
 import com.lessup.medledger.notifications.ReminderScheduler
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.time.Instant
@@ -16,11 +13,10 @@ import java.time.LocalDate
 import java.time.ZoneId
 import java.util.concurrent.TimeUnit
 
-@Singleton
-class ChronicRepository @Inject constructor(
+class ChronicRepository(
     private val conditionDao: ChronicConditionDao,
     private val planDao: CheckupPlanDao,
-    @ApplicationContext private val context: Context
+    private val context: Context
 ) {
 
     data class PlanOverview(

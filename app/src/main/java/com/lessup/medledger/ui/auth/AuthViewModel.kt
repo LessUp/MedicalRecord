@@ -7,14 +7,10 @@ import com.lessup.medledger.network.ApiClient
 import com.lessup.medledger.network.TokenProvider
 import com.lessup.medledger.sync.SyncEngine
 import com.lessup.medledger.sync.SyncState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
-import javax.inject.Inject
 
 /**
  * 认证状态
@@ -41,13 +37,12 @@ data class LoginUiState(
 /**
  * 认证 ViewModel
  */
-@HiltViewModel
-class AuthViewModel @Inject constructor() : ViewModel(), KoinComponent {
+class AuthViewModel(
+    private val apiClient: ApiClient,
+    private val tokenProvider: TokenProvider,
+    private val syncEngine: SyncEngine
+) : ViewModel() {
     
-    private val apiClient: ApiClient by inject()
-    private val tokenProvider: TokenProvider by inject()
-    private val syncEngine: SyncEngine by inject()
-
     val syncState: StateFlow<SyncState> = syncEngine.syncState
     
     private val _authState = MutableStateFlow<AuthState>(AuthState.Unknown)

@@ -75,3 +75,6 @@ DELETE FROM CheckupPlan WHERE localId = ?;
 
 deleteByCondition:
 DELETE FROM CheckupPlan WHERE conditionId = ?;
+
+deleteAll:
+DELETE FROM CheckupPlan;

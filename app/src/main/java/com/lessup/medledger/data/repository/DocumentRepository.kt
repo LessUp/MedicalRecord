@@ -2,12 +2,9 @@ package com.lessup.medledger.data.repository
 
 import com.lessup.medledger.data.dao.DocumentDao
 import com.lessup.medledger.data.entity.Document
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
 
-@Singleton
-class DocumentRepository @Inject constructor(
+class DocumentRepository(
     private val documentDao: DocumentDao
 ) {
     fun getByVisit(visitId: Long): Flow<List<Document>> = documentDao.getByVisit(visitId)
